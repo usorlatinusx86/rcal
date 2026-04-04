@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCAL Roman Calendar</title>
+
+    <style>
+        /* LIGHT THEME VARIABLES */
+        :root {
+            --primary: #800000;
+            --bg: #f4f4f5;
+            --surface: #ffffff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --today-bg: #fffacd;
+            --today-border: #ffd700;
+            --event: #d32f2f;
+            --dark-btn: #475569;
+            --print-btn: #059669;
+        }
+
+        /* DARK THEME VARIABLES */
+        body.dark-mode {
+            --primary: #ff6b6b;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --text: #f8fafc;
+            --text-light: #94a3b8;
+            --today-bg: #3f3f15;
+            --today-border: #eab308;
+            --event: #f87171;
+            --dark-btn: #cbd5e1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background: var(--surface);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            transition: background-color 0.3s;
+        }
+
+        h1 { margin: 0; color: var(--primary); font-size: 1.5rem; letter-spacing: 1px; }
+
+        .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+        .control-group { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; cursor: pointer; }
+
+        input[type="number"], input[type="date"], select {
+            padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px;
+            font-family: inherit; background-color: var(--surface); color: var(--text);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .btn-action {
+            color: white; border: none; padding: 8px 15px; border-radius: 4px;
+            cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: opacity 0.2s;
+        }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-dark { background-color: var(--dark-btn); color: var(--bg); }
+        .btn-print { background-color: var(--print-btn); }
+
+        .converter-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+            padding: 20px; margin: 2rem auto 0 auto; max-width: 800px; text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); display: none; transition: background-color 0.3s;
+        }
+
+        .converter-card h2 { margin-top: 0; color: var(--primary); font-size: 1.1rem; }
+        .conv-controls { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+        .conv-result { font-size: 1.6rem; font-weight: bold; color: var(--primary); background: var(--bg); padding: 15px; border-radius: 8px; border: 2px dashed var(--border); }
+
+        main { padding: 2rem; flex-grow: 1; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; max-width: 1400px; margin: 0 auto; }
+
+        .calendar { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; transition: background-color 0.3s; }
+        .month-header { background: var(--primary); color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 1rem; letter-spacing: 1px; }
+        .table-wrapper { flex-grow: 1; padding: 10px; }
+        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        th, td { border: 1px solid var(--border); padding: 6px 2px; text-align: center; vertical-align: top; height: 55px; transition: border-color 0.3s; }
+        th { background: var(--bg); font-size: 0.75rem; text-transform: uppercase; color: var(--text-light); height: 25px; transition: background-color 0.3s; }
+
+        .today { background: var(--today-bg); border: 2px solid var(--today-border); }
+        .roman-day { display: block; font-size: 0.8rem; }
+        
+        .anchor-date { color: var(--primary); font-weight: 900; text-decoration: underline; text-underline-offset: 3px; }
+        
+        .extra, .event { 
+            display: block; 
+            margin-top: 2px;
+            overflow-wrap: break-word;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+        }
+        .extra { font-size: 0.6rem; color: var(--text-light); }
+        .event { color: var(--event); font-weight: bold; font-size: 0.6rem; }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; align-items: flex-start; }
+            main { padding: 1rem; }
+            .calendar-grid { grid-template-columns: 1fr; }
+        }
+
+        /* 🖨️ CONFIGURAÇÕES OTIMIZADAS PARA IMPRESSÃO (PRINT MODE) */
+        @media print {
+            @page {
+                margin: 1cm;
+            }
+
+            /* Força as variáveis do Light Mode na impressão */
+            body, body.dark-mode {
+                --primary: #800000 !important;
+                --bg: #ffffff !important;
+                --surface: #ffffff !important;
+                --border: #e2e8f0 !important;
+                --text: #000000 !important;
+                --text-light: #333333 !important;
+                --today-bg: transparent !important; 
+                --today-border: #000000 !important;
+                --event: #000000 !important;
+            }
+
+            body { 
+                background: white !important; 
+                color: black !important; 
+                margin: 0; 
+                padding: 0; 
+            }
+            
+            header, .converter-card { display: none !important; }
+            main { padding: 0 !important; background: white !important; }
+            
+            .calendar-grid { 
+                display: block !important; 
+                margin: 0 !important;
+                max-width: none !important;
+            }
+            
+            .calendar { 
+                page-break-after: always; 
+                break-after: page;
+                page-break-inside: avoid;
+                break-inside: avoid;
+                
+                height: 65vh !important; 
+                width: 85% !important; 
+                margin: 10vh auto !important; 
+                
+                border: none !important;
+                box-shadow: none !important;
+                display: flex !important;
+                flex-direction: column !important;
+                background: white !important; 
+            }
+            
+            .calendar:last-child {
+                page-break-after: auto;
+                break-after: auto;
+            }
+
+            .month-header { 
+                background: transparent !important; 
+                color: black !important; 
+                border: 2px solid black; 
+                border-bottom: none;
+                font-size: 1.2rem !important; 
+                padding: 8px !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .table-wrapper { 
+                flex-grow: 1; 
+                padding: 0 !important; 
+                display: flex;
+                flex-direction: column;
+                background: white !important;
+            }
+            
+            table { 
+                flex-grow: 1; 
+                height: 100%; 
+                border: 2px solid black;
+                table-layout: fixed;
+                background: white !important;
+            }
+            
+            th {
+                font-size: 0.75rem !important;
+                background: #eee !important;
+                color: black !important;
+                border: 1px solid black !important;
+                padding: 2px !important;
+            }
+
+            td { 
+                border: 1px solid black !important; 
+                padding: 2px !important; 
+                height: auto !important; 
+                line-height: 1.1; 
+                background: white !important;
+            }
+
+            .today { 
+                background: transparent !important; 
+                border: 2px solid black !important; 
+            }
+            
+            .roman-day { font-size: 0.9rem !important; font-weight: bold; color: black !important; }
+            .anchor-date { color: black !important; text-decoration: underline; }
+            .event { color: black !important; font-style: italic; font-size: 0.6rem !important; margin-top: 1px; }
+            .extra { color: #333 !important; font-size: 0.55rem !important; margin-top: 1px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🏛️ RCAL</h1>
+        <div class="controls">
+            <div class="control-group"><label>Month:</label><select id="selMonth"></select></div>
+            <div class="control-group"><label>Year:</label><input type="number" id="inpYear" value="2026"></div>
+            <div class="control-group">
+                <label>Mode:</label>
+                <select id="selMode">
+                    <option value="1">1 Month</option>
+                    <option value="3">3 Months</option>
+                    <option value="12">Full Year</option>
+                </select>
+            </div>
+            <button id="btnDarkMode" class="btn-action btn-dark">🌙 Dark</button>
+            <button id="btnPrint" class="btn-action btn-print">🖨️ Print</button>
+        </div>
+        <div class="controls">
+            <label class="control-group" style="font-weight: bold; color: var(--primary);"><input type="checkbox" id="optToggleConverter"> Converter</label>
+            <label class="control-group"><input type="checkbox" id="optQS"> Q/S Months</label>
+            <label class="control-group"><input type="checkbox" id="optRomanDays"> Roman Days</label>
+            <label class="control-group"><input type="checkbox" id="optRomanYear"> Roman Year</label>
+            <label class="control-group"><input type="checkbox" id="optFasti"> Fasti</label>
+            <label class="control-group"><input type="checkbox" id="optNundinal"> Nundinal</label>
+            <label class="control-group"><input type="checkbox" id="optEvents"> Events</label>
+            <label class="control-group"><input type="checkbox" id="optAUC"> AUC</label>
+            <label class="control-group"><input type="checkbox" id="optEra"> Era</label>
+        </div>
+    </header>
+
+    <main>
+        <div class="converter-card" id="converterCard">
+            <h2>🔄 Gregorian ➔ Roman Converter</h2>
+            <div class="conv-controls">
+                <input type="date" id="inpConvDate">
+                <label class="control-group"><input type="checkbox" id="optConvQS"> Q/S</label>
+                <label class="control-group"><input type="checkbox" id="optConvRomanYear" checked> Year</label>
+                <label class="control-group"><input type="checkbox" id="optConvRomanDays" checked> Days</label>
+            </div>
+            <div id="resConversion" class="conv-result">Select a date</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid"></div>
+    </main>
+
+    <script>
+        const latin_months = ["IANVARIVS", "FEBRVARIVS", "MARTIVS", "APRILIS", "MAIVS", "IVNIVS", "IVLIVS", "AVGVSTVS", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const latin_days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+        const now = new Date();
+        const curr_d = now.getDate(), curr_m = now.getMonth(), curr_y = now.getFullYear();
+
+        // Lista de IDs dos Checkboxes para sincronizar na URL
+        const toggleIds = ["optQS", "optRomanDays", "optRomanYear", "optFasti", "optNundinal", "optEvents", "optAUC", "optEra"];
+
+        // --- URL SYNC ---
+        const syncURL = () => {
+            const params = new URLSearchParams(window.location.search);
+            params.set('y', document.getElementById("inpYear").value);
+            params.set('m', document.getElementById("selMonth").value);
+            params.set('mode', document.getElementById("selMode").value);
+            
+            toggleIds.forEach(id => {
+                if(document.getElementById(id).checked) params.set(id, '1');
+                else params.delete(id);
+            });
+
+            window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+        };
+
+        // --- MATH FUNCTIONS ---
+        const get_astro_y = (y) => y < 0 ? y + 1 : y; 
+        const is_leap = (y) => { let ay = get_astro_y(y); return (ay > 1582) ? ((ay % 4 === 0 && ay % 100 !== 0) || (ay % 400 === 0)) : (ay % 4 === 0); };
+        const get_days_in_month = (m, y) => { if (m === 1) return is_leap(y) ? 29 : 28; return [3, 5, 8, 10].includes(m) ? 30 : 31; };
+
+        const int_to_roman_day = (n) => {
+            const r = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX", "XXI", "XXII", "XXIII", "XXIV", "XXV", "XXVI", "XXVII", "XXVIII", "XXIX", "XXX", "XXXI"];
+            return (n >= 0 && n <= 31) ? r[n] : n.toString();
+        };
+
+        const int_to_roman_year = (num) => {
+            if (num <= 0) return num.toString();
+            const val = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+            const sym = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+            let res = '';
+            for (let i = 0; i < val.length; i++) { while (num >= val[i]) { res += sym[i]; num -= val[i]; } }
+            return res;
+        };
+
+        const get_jdn = (d, m, y) => {
+            let Y = get_astro_y(y), M = m + 1;
+            if (M <= 2) { Y -= 1; M += 12; }
+            let A = Math.trunc(Y / 100), B = Math.trunc(A / 4), C = 2 - A + B; 
+            if (y < 1582 || (y === 1582 && m < 9) || (y === 1582 && m === 9 && d < 15)) C = 0;
+            return C + d + Math.trunc(365.25 * (Y + 4716)) + Math.trunc(30.6001 * (M + 1)) - 1524;
+        };
+
+        const get_first_weekday = (m, y) => (get_jdn(1, m, y) + 1) % 7;
+        const get_nundinal_letter = (d, m, y) => String.fromCharCode(65 + (get_jdn(d, m, y) % 8));
+        const get_fasti = (s) => (s.includes("KAL") || s.includes("IDV")) ? "NP" : (s.includes("NON") ? "F" : "C");
+
+        // --- FESTIVALS DICTIONARY ---
+        const get_festival = (d, m) => {
+            const festivals = {
+                0: { 9: "Agonalia", 11: "Carmentalia", 15: "Carmentalia" },
+                1: { 13: "Parentalia", 15: "Lupercalia", 17: "Quirinalia", 21: "Feralia", 22: "Caristia", 23: "Terminalia", 24: "Regifugium", 27: "Equirria" },
+                2: { 1: "Matronalia", 14: "Equirria", 15: "Anna Perenna", 17: "Liberalia", 19: "Quinquatrus", 23: "Tubilustrium" },
+                3: { 4: "Megalesia", 12: "Cerialia", 15: "Fordicidia", 21: "Parilia", 23: "Vinalia Priora", 25: "Robigalia", 28: "Floralia" },
+                4: { 9: "Lemuria", 11: "Lemuria", 13: "Lemuria", 15: "Mercuralia", 21: "Agonalia" },
+                5: { 9: "Vestalia", 11: "Matralia" },
+                6: { 5: "Poplifugia", 7: "N. Caprotinae", 19: "Lucaria", 21: "Lucaria", 23: "Neptunalia", 25: "Furrinalia" },
+                7: { 13: "Nemoralia", 17: "Portunalia", 19: "Vinalia Rustica", 21: "Consualia", 23: "Vulcanalia", 25: "Opiconsivia", 27: "Volturnalia" },
+                8: { 4: "Ludi Romani", 13: "Epulum Jovis" },
+                9: { 11: "Meditrinalia", 13: "Fontinalia", 15: "Equus October", 19: "Armilustrium" },
+                10: { 13: "Epulum Jovis", 24: "Brumalia" },
+                11: { 4: "Bona Dea", 5: "Faunalia", 11: "Agonalia", 15: "Consualia", 17: "Saturnalia", 19: "Opalia", 21: "Divalia", 23: "Larentalia", 25: "Solis Invicti" }
+            };
+            return (festivals[m] && festivals[m][d]) ? festivals[m][d] : null;
+        };
+
+        // CORREÇÃO DO BUG DAS ERAS USANDO ELSE IF
+        const get_emperor = (y) => {
+            if (y < -753) return null; // Antes da fundação de Roma
+            else if (y < -509) return "Roman Kingdom";
+            else if (y < -44) return "Roman Republic";
+            else if (y < -27) return "Late Republic";
+            else if (y <= 14) return "Augustus";
+            else if (y <= 37) return "Tiberius";
+            else if (y <= 41) return "Caligula";
+            else if (y <= 54) return "Claudius";
+            else if (y <= 68) return "Nero";
+            else if (y <= 79) return "Vespasianus";
+            else if (y <= 81) return "Titus";
+            else if (y <= 96) return "Domitianus";
+            else if (y <= 117) return "Traianus";
+            else if (y <= 138) return "Hadrianus";
+            else if (y <= 161) return "Antoninus Pius";
+            else if (y <= 180) return "M. Aurelius";
+            else if (y <= 192) return "Commodus";
+            else if (y <= 211) return "Septimius Severus";
+            else if (y <= 217) return "Caracalla";
+            else if (y <= 284) return "Crisis of 3rd Century";
+            else if (y <= 305) return "Diocletianus";
+            else if (y <= 337) return "Constantinus I";
+            else if (y <= 395) return "Late Empire";
+            else if (y <= 476) return "Fall of Western Roman Empire";
+            return null;
+        };
+
+        const get_roman_day = (day, month, year, use_roman) => {
+            let dim = get_days_in_month(month, year);
+            let non = [2, 4, 6, 9].includes(month) ? 7 : 5, ide = non + 8;
+            let ns = (v) => use_roman ? int_to_roman_day(v) : v;
+
+            if (day === 1) return "KAL";
+            if (day < non) { let d = non - day + 1; return d === 2 ? "PR NON" : `${ns(d)} NON`; }
+            if (day === non) return "NON";
+            if (day < ide) { let d = ide - day + 1; return d === 2 ? "PR IDV" : `${ns(d)} IDV`; }
+            if (day === ide) return "IDV";
+            
+            if (month === 1 && is_leap(year)) { 
+                if (day < 24) return `${ns(28 - day + 2)} KAL`;
+                if (day === 24) return use_roman ? "VI KAL" : "6 KAL"; 
+                if (day === 25) return use_roman ? "VI KAL (BIS)" : "6 KAL (BIS)"; 
+                return `${ns(29 - day + 2)} KAL`;
+            }
+            let d = dim - day + 2; return d === 2 ? "PR KAL" : `${ns(d)} KAL`;
+        };
+
+        // --- UI RENDERING ---
+        const runConversion = () => {
+            const di = document.getElementById("inpConvDate").value, res = document.getElementById("resConversion");
+            if (!di) return;
+            const [y, m, d] = di.split('-').map(v => parseInt(v));
+            const qs = document.getElementById("optConvQS").checked, ry = document.getElementById("optConvRomanYear").checked, rd = document.getElementById("optConvRomanDays").checked;
+            let tm = m - 1, ty = y, non = [2, 4, 6, 9].includes(tm) ? 7 : 5;
+            if (d > non + 8) { tm = (tm + 1) % 12; if (tm === 0) ty++; }
+            let mn = latin_months[tm]; if (qs && tm === 6) mn = "QVINTILIS"; if (qs && tm === 7) mn = "SEXTILIS";
+            
+            if (ty === 0) ty = 1; 
+            
+            res.innerText = `${get_roman_day(d, m-1, y, rd)} ${mn} ${ry ? int_to_roman_year(ty) : ty}`;
+        };
+
+        const renderCalendar = () => {
+            syncURL(); 
+
+            const grid = document.getElementById("calendarGrid");
+            let buf = ""; 
+            const tm = parseInt(document.getElementById("selMonth").value), ty = parseInt(document.getElementById("inpYear").value), mode = parseInt(document.getElementById("selMode").value);
+            const qs = document.getElementById("optQS").checked, rd = document.getElementById("optRomanDays").checked, ry = document.getElementById("optRomanYear").checked, fa = document.getElementById("optFasti").checked, nu = document.getElementById("optNundinal").checked, ev = document.getElementById("optEvents").checked, auc = document.getElementById("optAUC").checked, era = document.getElementById("optEra").checked;
+
+            let sm = tm, sy = ty, count = mode;
+            if (mode === 3) { sm = tm - 1; if (sm < 0) { sm = 11; sy--; } } else if (mode === 12) sm = 0;
+
+            for (let i = 0; i < count; i++) {
+                let m = (sm + i) % 12;
+                
+                let calculated_y = sy + Math.floor((sm + i) / 12);
+                if (sy < 0 && calculated_y >= 0) calculated_y += 1; 
+                let y = calculated_y;
+
+                let days = get_days_in_month(m, y), first = get_first_weekday(m, y);
+                let mn = latin_months[m]; if (qs && m === 6) mn = "QVINTILIS"; if (qs && m === 7) mn = "SEXTILIS";
+                
+                let displayY = auc ? (y < 0 ? 754 + y : y + 753) : Math.abs(y);
+                let yearStr = ry ? int_to_roman_year(displayY) : displayY; 
+                if (!auc && y < 0) yearStr += " BC";
+                if (auc) yearStr += " AUC";
+
+                let emp = era ? get_emperor(y) : null;
+                
+                buf += `<div class="calendar"><div class="month-header">${mn} ${yearStr} ${emp?`<br><small>(${emp})</small>`:''}</div><div class="table-wrapper"><table><tr>${latin_days.map(d=>`<th>${d}</th>`).join('')}</tr><tr>`;
+                let cc = 0;
+                for (let j = 0; j < first; j++) { buf += `<td></td>`; cc++; }
+                for (let d = 1; d <= days; d++) {
+                    if (y === 1582 && m === 9 && d >= 5 && d <= 14) continue;
+                    if (cc > 0 && cc % 7 === 0) buf += `</tr><tr>`;
+                    let today = (d === curr_d && m === curr_m && y === curr_y && mode !== 12), rd_str = get_roman_day(d, m, y, rd);
+                    let isAnchor = (rd_str === "KAL" || rd_str === "NON" || rd_str === "IDV");
+
+                    buf += `<td ${today?'class="today"':''}>
+                        <span class="roman-day ${isAnchor?'anchor-date':''}">${rd_str}</span>
+                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_nundinal_letter(d,m,y)} `:''}${fa?`[${get_fasti(rd_str)}]`:''}</span>`:''}
+                        ${ev && get_festival(d, m) ? `<span class="event">${get_festival(d, m)}</span>` : ''}
+                        ${y===1582&&m===9&&d===15?`<span class="extra" style="color:var(--primary); font-weight:bold;">(Greg.)</span>`:''}
+                    </td>`;
+                    cc++;
+                }
+                while (cc < 42) { if (cc % 7 === 0) buf += `</tr><tr>`; buf += `<td></td>`; cc++; }
+                buf += `</tr></table></div></div>`;
+            }
+            grid.innerHTML = buf;
+        };
+
+        // --- THEME ---
+        const toggleDarkMode = () => {
+            document.body.classList.toggle("dark-mode");
+            const isDark = document.body.classList.contains("dark-mode");
+            document.getElementById("btnDarkMode").innerText = isDark ? "☀️ Light" : "🌙 Dark";
+            localStorage.setItem("rcal_theme", isDark ? "dark" : "light");
+            document.activeElement.blur(); 
+        };
+
+        // --- KEYBOARD SHORTCUTS ---
+        const handleKeyboardShortcuts = (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+            let updateCalendar = false;
+
+            const toggleCheckbox = (id) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.checked = !el.checked;
+                    updateCalendar = true;
+                }
+            };
+
+            switch(key) {
+                case 'm': 
+                    const modeSelect = document.getElementById("selMode");
+                    if (modeSelect.value === "1") modeSelect.value = "3";
+                    else if (modeSelect.value === "3") modeSelect.value = "12";
+                    else modeSelect.value = "1";
+                    updateCalendar = true;
+                    break;
+                case 'c': 
+                    const convOpt = document.getElementById("optToggleConverter");
+                    convOpt.checked = !convOpt.checked;
+                    document.getElementById("converterCard").style.display = convOpt.checked ? "block" : "none";
+                    break;
+                case 'q':
+                case 's':
+                    toggleCheckbox("optQS");
+                    break;
+                case 'd':
+                    toggleCheckbox("optRomanDays");
+                    break;
+                case 'y':
+                    toggleCheckbox("optRomanYear");
+                    break;
+                case 'f':
+                    toggleCheckbox("optFasti");
+                    break;
+                case 'n':
+                    toggleCheckbox("optNundinal");
+                    break;
+                case 'e':
+                    toggleCheckbox("optEvents");
+                    break;
+                case 'a':
+                    toggleCheckbox("optAUC");
+                    break;
+                case 'r':
+                    toggleCheckbox("optEra");
+                    break;
+                case 't': 
+                    toggleDarkMode();
+                    break;
+                case 'p':
+                    e.preventDefault(); 
+                    document.activeElement.blur();
+                    window.print();
+                    break;
+            }
+
+            if (updateCalendar) {
+                renderCalendar();
+            }
+        };
+
+        // --- INIT ---
+        window.onload = () => {
+            if (localStorage.getItem("rcal_theme") === "dark") toggleDarkMode();
+
+            const sm = document.getElementById("selMonth"), yInp = document.getElementById("inpYear");
+            latin_months.forEach((m, i) => sm.add(new Option(m, i)));
+            
+            const params = new URLSearchParams(window.location.search);
+            sm.value = params.has('m') ? params.get('m') : curr_m; 
+            yInp.value = params.has('y') ? params.get('y') : curr_y;
+            if (params.has('mode')) document.getElementById("selMode").value = params.get('mode');
+            
+            toggleIds.forEach(id => {
+                if(params.has(id)) document.getElementById(id).checked = true;
+            });
+            
+            document.getElementById("inpConvDate").value = `${curr_y}-${String(curr_m+1).padStart(2,'0')}-${String(curr_d).padStart(2,'0')}`;
+            
+            let lastY = parseInt(yInp.value);
+            yInp.addEventListener("input", (e) => {
+                let v = parseInt(e.target.value);
+                if (v === 0) e.target.value = lastY > 0 ? -1 : 1;
+                lastY = parseInt(e.target.value) || 1;
+                renderCalendar();
+            });
+
+            document.querySelectorAll("header input[type='checkbox'], header select").forEach(el => el.addEventListener("change", renderCalendar));
+            document.querySelectorAll(".converter-card input").forEach(el => el.addEventListener("change", runConversion));
+            document.getElementById("optToggleConverter").addEventListener("change", (e) => document.getElementById("converterCard").style.display = e.target.checked ? "block" : "none");
+            document.getElementById("btnDarkMode").addEventListener("click", toggleDarkMode);
+            document.getElementById("btnPrint").addEventListener("click", () => { document.activeElement.blur(); window.print(); });
+
+            document.addEventListener('keydown', handleKeyboardShortcuts);
+
+            renderCalendar(); runConversion();
+        };
+    </script>
+</body>
+</html>
