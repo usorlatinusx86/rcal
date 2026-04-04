@@ -58,7 +58,7 @@ This software is provided "as is", without warranty of any kind. **The author as
 
 **Please note:** * The **Fasti days** and **Nundinal letters** provided by this application are mathematical/historical **approximations**. 
 * The ancient Roman calendar, especially prior to the Julian reform in 45 BC, was heavily subject to pontifical intercalation and political manipulation. Therefore, achieving absolute, day-to-day historical accuracy for the deep past is nearly impossible. 
-* This tool is intended for educational, research, and entertainment purposes.
+* This tool is intended for entertainment purposes.
 
 ## 🤝 Contributing
 
