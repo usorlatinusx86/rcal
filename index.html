@@ -409,7 +409,7 @@
             const qs = document.getElementById("optConvQS").checked, ry = document.getElementById("optConvRomanYear").checked, rd = document.getElementById("optConvRomanDays").checked;
             let tm = m - 1, ty = y, non = [2, 4, 6, 9].includes(tm) ? 7 : 5;
             if (d > non + 8) { tm = (tm + 1) % 12; if (tm === 0) ty++; }
-            let mn = latin_months2[tm]; if (qs && tm === 6) mn = "QVINTILIS"; if (qs && tm === 7) mn = "SEXTILIS";
+            let mn = latin_months2[tm]; if (qs && tm === 6) mn = "QVINTILES"; if (qs && tm === 7) mn = "SEXTILES";
             
             if (ty === 0) ty = 1; 
             
