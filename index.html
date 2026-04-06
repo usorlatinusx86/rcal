@@ -279,6 +279,7 @@
 
     <script>
         const latin_months = ["IANVARIVS", "FEBRVARIVS", "MARTIVS", "APRILIS", "MAIVS", "IVNIVS", "IVLIVS", "AVGVSTVS", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+        const latin_months2 = ["IANVARIAS", "FEBRVARIAS", "MARTIAS", "APRILIS", "MAIAS", "IVNIAS", "IVLIAS", "AVGVSTAS", "SEPTEMBRES", "OCTOBRES", "NOVEMBRES", "DECEMBRES"];
         const latin_days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
         const now = new Date();
         const curr_d = now.getDate(), curr_m = now.getMonth(), curr_y = now.getFullYear();
@@ -408,7 +409,7 @@
             const qs = document.getElementById("optConvQS").checked, ry = document.getElementById("optConvRomanYear").checked, rd = document.getElementById("optConvRomanDays").checked;
             let tm = m - 1, ty = y, non = [2, 4, 6, 9].includes(tm) ? 7 : 5;
             if (d > non + 8) { tm = (tm + 1) % 12; if (tm === 0) ty++; }
-            let mn = latin_months[tm]; if (qs && tm === 6) mn = "QVINTILIS"; if (qs && tm === 7) mn = "SEXTILIS";
+            let mn = latin_months2[tm]; if (qs && tm === 6) mn = "QVINTILIS"; if (qs && tm === 7) mn = "SEXTILIS";
             
             if (ty === 0) ty = 1; 
             
