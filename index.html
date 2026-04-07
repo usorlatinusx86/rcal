@@ -253,8 +253,8 @@
         <div class="controls">
             <label class="control-group" style="font-weight: bold; color: var(--primary);"><input type="checkbox" id="optToggleConverter"> Converter</label>
             <label class="control-group"><input type="checkbox" id="optQS"> Q/S Months</label>
-            <label class="control-group"><input type="checkbox" id="optRomanDays"> Roman Days</label>
-            <label class="control-group"><input type="checkbox" id="optRomanYear"> Roman Year</label>
+            <label class="control-group"><input type="checkbox" id="optRomanDays" checked> Roman Days</label>
+            <label class="control-group"><input type="checkbox" id="optRomanYear" checked> Roman Year</label>
             <label class="control-group"><input type="checkbox" id="optFasti"> Fasti</label>
             <label class="control-group"><input type="checkbox" id="optNundinal"> Nundinal</label>
             <label class="control-group"><input type="checkbox" id="optEvents"> Events</label>
@@ -280,7 +280,7 @@
     <script>
         const latin_months = ["IANVARIVS", "FEBRVARIVS", "MARTIVS", "APRILIS", "MAIVS", "IVNIVS", "IVLIVS", "AVGVSTVS", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
         const latin_months2 = ["IANVARIAS", "FEBRVARIAS", "MARTIAS", "APRILES", "MAIAS", "IVNIAS", "IVLIAS", "AVGVSTAS", "SEPTEMBRES", "OCTOBRES", "NOVEMBRES", "DECEMBRES"];
-        const latin_days = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+        const latin_days = ["SOL", "LVN", "MAR", "MER", "IOV", "VEN", "SAT"];
         const now = new Date();
         const curr_d = now.getDate(), curr_m = now.getMonth(), curr_y = now.getFullYear();
 
