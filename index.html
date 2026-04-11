@@ -126,7 +126,6 @@
                 margin: 1cm;
             }
 
-            /* Força as variáveis do Light Mode na impressão */
             body, body.dark-mode {
                 --primary: #800000 !important;
                 --bg: #ffffff !important;
@@ -331,7 +330,26 @@
 
         const get_first_weekday = (m, y) => (get_jdn(1, m, y) + 1) % 7;
         const get_nundinal_letter = (d, m, y) => String.fromCharCode(65 + (get_jdn(d, m, y) % 8));
-        const get_fasti = (s) => (s.includes("KAL") || s.includes("IDV")) ? "NP" : (s.includes("NON") ? "F" : "C");
+
+        // --- FULL CALENDAR FASTI DICTIONARY ---
+        const get_fasti = (d, m) => {
+            const fasti_year = [
+                "F,F,C,C,F,F,C,C,NP,EN,NP,C,NP,EN,NP,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 0 Jan
+                "N,N,N,N,N,N,N,N,N,N,N,N,NP,N,NP,EN,NP,C,C,C,F,C,NP,EN,C,EN,NP,C,C", // 1 Feb
+                "NP,F,C,C,C,F,C,C,C,C,C,C,EN,F,NP,C,NP,C,NP,C,C,EN,NP,QRCF,C,C,NP,C,C,C,C", // 2 Mar
+                "F,F,C,C,N,N,N,N,N,N,N,N,NP,N,NP,N,N,N,NP,N,NP,N,N,N,NP,C,C,NP,C,C", // 3 Apr
+                "F,F,C,C,C,F,C,C,NP,C,NP,C,EN,F,NP,C,C,C,C,C,NP,N,QRCF,C,C,C,C,C,C,C,C", // 4 May
+                "N,F,C,C,F,C,N,N,NP,N,NP,N,NP,N,QSDF,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 5 Jun
+                "N,N,N,N,NP,N,NP,N,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 6 Jul
+                "F,F,C,C,F,F,C,C,NP,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C", // 7 Aug
+                "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 8 Sep
+                "N,N,N,N,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 9 Oct
+                "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 10 Nov
+                "N,N,N,N,F,F,C,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C,C,C,C,C"  // 11 Dec
+            ];
+            let month_fasti = fasti_year[m].split(",");
+            return month_fasti[d - 1] || "C"; // Fallback de segurança
+        };
 
         // --- FESTIVALS DICTIONARY ---
         const get_festival = (d, m) => {
@@ -352,9 +370,8 @@
             return (festivals[m] && festivals[m][d]) ? festivals[m][d] : null;
         };
 
-        // CORREÇÃO DO BUG DAS ERAS USANDO ELSE IF
         const get_emperor = (y) => {
-            if (y < -753) return null; // Antes da fundação de Roma
+            if (y < -753) return null; 
             else if (y < -509) return "Roman Kingdom";
             else if (y < -44) return "Roman Republic";
             else if (y < -27) return "Late Republic";
@@ -444,7 +461,7 @@
 
                 let emp = era ? get_emperor(y) : null;
                 
-                buf += `<div class="calendar"><div class="month-header">${mn} ${yearStr} ${emp?`<br><small>(${emp})</small>`:''}</div><div class="table-wrapper"><table><tr>${latin_days.map(d=>`<th>${d}</th>`).join('')}</tr><tr>`;
+                buf += `<div class="calendar"><div class="month-header">${mn} ${yearStr} ${emp?`<br/><small>(${emp})</small>`:''}</div><div class="table-wrapper"><table><tr>${latin_days.map(d=>`<th>${d}</th>`).join('')}</tr><tr>`;
                 let cc = 0;
                 for (let j = 0; j < first; j++) { buf += `<td></td>`; cc++; }
                 for (let d = 1; d <= days; d++) {
@@ -455,7 +472,7 @@
 
                     buf += `<td ${today?'class="today"':''}>
                         <span class="roman-day ${isAnchor?'anchor-date':''}">${rd_str}</span>
-                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_nundinal_letter(d,m,y)} `:''}${fa?`[${get_fasti(rd_str)}]`:''}</span>`:''}
+                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_nundinal_letter(d,m,y)} `:''}${fa?`[${get_fasti(d, m)}]`:''}</span>`:''}
                         ${ev && get_festival(d, m) ? `<span class="event">${get_festival(d, m)}</span>` : ''}
                         ${y===1582&&m===9&&d===15?`<span class="extra" style="color:var(--primary); font-weight:bold;">(Greg.)</span>`:''}
                     </td>`;
@@ -487,10 +504,7 @@
 
             const toggleCheckbox = (id) => {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.checked = !el.checked;
-                    updateCalendar = true;
-                }
+                if (el) { el.checked = !el.checked; updateCalendar = true; }
             };
 
             switch(key) {
@@ -506,39 +520,16 @@
                     convOpt.checked = !convOpt.checked;
                     document.getElementById("converterCard").style.display = convOpt.checked ? "block" : "none";
                     break;
-                case 'q':
-                case 's':
-                    toggleCheckbox("optQS");
-                    break;
-                case 'd':
-                    toggleCheckbox("optRomanDays");
-                    break;
-                case 'y':
-                    toggleCheckbox("optRomanYear");
-                    break;
-                case 'f':
-                    toggleCheckbox("optFasti");
-                    break;
-                case 'n':
-                    toggleCheckbox("optNundinal");
-                    break;
-                case 'e':
-                    toggleCheckbox("optEvents");
-                    break;
-                case 'a':
-                    toggleCheckbox("optAUC");
-                    break;
-                case 'r':
-                    toggleCheckbox("optEra");
-                    break;
-                case 't': 
-                    toggleDarkMode();
-                    break;
-                case 'p':
-                    e.preventDefault(); 
-                    document.activeElement.blur();
-                    window.print();
-                    break;
+                case 'q': case 's': toggleCheckbox("optQS"); break;
+                case 'd': toggleCheckbox("optRomanDays"); break;
+                case 'y': toggleCheckbox("optRomanYear"); break;
+                case 'f': toggleCheckbox("optFasti"); break;
+                case 'n': toggleCheckbox("optNundinal"); break;
+                case 'e': toggleCheckbox("optEvents"); break;
+                case 'a': toggleCheckbox("optAUC"); break;
+                case 'r': toggleCheckbox("optEra"); break;
+                case 't': toggleDarkMode(); break;
+                case 'p': e.preventDefault(); document.activeElement.blur(); window.print(); break;
             }
 
             if (updateCalendar) {
@@ -558,9 +549,13 @@
             yInp.value = params.has('y') ? params.get('y') : curr_y;
             if (params.has('mode')) document.getElementById("selMode").value = params.get('mode');
             
-            toggleIds.forEach(id => {
-                if(params.has(id)) document.getElementById(id).checked = true;
-            });
+            // CORREÇÃO: Se houver qualquer parâmetro na URL, a URL dita as regras e removemos os defaults do HTML
+            if (Array.from(params.keys()).length > 0) {
+                toggleIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.checked = params.has(id);
+                });
+            }
             
             document.getElementById("inpConvDate").value = `${curr_y}-${String(curr_m+1).padStart(2,'0')}-${String(curr_d).padStart(2,'0')}`;
             
