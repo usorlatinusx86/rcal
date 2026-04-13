@@ -65,7 +65,7 @@
         .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
         .control-group { display: flex; align-items: center; gap: 5px; font-size: 0.85rem; cursor: pointer; }
 
-        input[type="number"], input[type="date"], select {
+        input[type="number"], select {
             padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px;
             font-family: inherit; background-color: var(--surface); color: var(--text);
             transition: background-color 0.3s, color 0.3s;
@@ -120,114 +120,128 @@
             .calendar-grid { grid-template-columns: 1fr; }
         }
 
-        /* 🖨️ CONFIGURAÇÕES OTIMIZADAS PARA IMPRESSÃO (PRINT MODE) */
+        /* 🖨️ OPTIMIZED PRINT CONFIGURATIONS (SAFARI/IOS BULLETPROOF MODE) */
         @media print {
-            @page {
-                margin: 1cm;
+            @page { 
+                size: portrait;
+                margin: 5mm; 
+            }
+
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+                box-sizing: border-box !important;
+                -webkit-text-size-adjust: none !important;
             }
 
             body, body.dark-mode {
                 --primary: #800000 !important;
-                --bg: #ffffff !important;
+                --bg: #f4f4f5 !important;
                 --surface: #ffffff !important;
-                --border: #e2e8f0 !important;
-                --text: #000000 !important;
-                --text-light: #333333 !important;
-                --today-bg: transparent !important; 
-                --today-border: #000000 !important;
-                --event: #000000 !important;
-            }
-
-            body { 
-                background: white !important; 
-                color: black !important; 
-                margin: 0; 
-                padding: 0; 
+                --border: #cbd5e1 !important; 
+                --text: #1e293b !important;
+                --text-light: #475569 !important;
+                --today-bg: #fffacd !important;
+                --today-border: #d97706 !important;
+                --event: #b91c1c !important;
+                
+                background: white !important;
+                color: var(--text) !important;
+                margin: 0 !important; 
+                padding: 0 !important;
             }
             
             header, .converter-card { display: none !important; }
-            main { padding: 0 !important; background: white !important; }
+            main { padding: 0 !important; background: white !important; display: block !important; }
             
             .calendar-grid { 
                 display: block !important; 
-                margin: 0 !important;
-                max-width: none !important;
+                margin: 0 !important; 
+                padding: 0 !important;
             }
             
             .calendar { 
-                page-break-after: always; 
-                break-after: page;
-                page-break-inside: avoid;
-                break-inside: avoid;
+                display: block !important; 
+                page-break-after: always !important; 
+                break-after: page !important; 
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important;
                 
-                height: 65vh !important; 
-                width: 85% !important; 
-                margin: 10vh auto !important; 
+                height: 210mm !important; 
+                max-height: 210mm !important; 
+                width: 100% !important; 
+                margin: 0 auto !important; 
                 
-                border: none !important;
-                box-shadow: none !important;
-                display: flex !important;
-                flex-direction: column !important;
-                background: white !important; 
+                border: 1px solid var(--border) !important; 
+                box-shadow: none !important; 
+                background: var(--surface) !important; 
+                overflow: hidden !important; 
             }
             
-            .calendar:last-child {
-                page-break-after: auto;
-                break-after: auto;
+            .calendar:last-child { 
+                page-break-after: auto !important; 
+                break-after: auto !important; 
             }
 
             .month-header { 
-                background: transparent !important; 
-                color: black !important; 
-                border: 2px solid black; 
-                border-bottom: none;
+                display: block !important;
+                height: 12mm !important; 
+                background: var(--primary) !important; 
+                color: white !important; 
+                border-bottom: 1px solid var(--border) !important; 
                 font-size: 1.2rem !important; 
-                padding: 8px !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                padding: 6px !important;
+                line-height: 1 !important;
             }
 
             .table-wrapper { 
-                flex-grow: 1; 
+                display: block !important;
                 padding: 0 !important; 
-                display: flex;
-                flex-direction: column;
-                background: white !important;
+                height: 198mm !important; 
             }
-            
+
             table { 
-                flex-grow: 1; 
-                height: 100%; 
-                border: 2px solid black;
-                table-layout: fixed;
-                background: white !important;
+                display: table !important;
+                width: 100% !important; 
+                height: 198mm !important; 
+                border-collapse: collapse !important; 
+                table-layout: fixed !important; 
             }
-            
-            th {
-                font-size: 0.75rem !important;
-                background: #eee !important;
-                color: black !important;
-                border: 1px solid black !important;
-                padding: 2px !important;
+
+            tr {
+                display: table-row !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+
+            th { 
+                display: table-cell !important;
+                font-size: 0.75rem !important; 
+                background: var(--bg) !important; 
+                color: var(--text) !important; 
+                border: 1px solid var(--border) !important; 
+                padding: 2px !important; 
+                height: 8mm !important; 
             }
 
             td { 
-                border: 1px solid black !important; 
+                display: table-cell !important;
+                border: 1px solid var(--border) !important; 
                 padding: 2px !important; 
-                height: auto !important; 
-                line-height: 1.1; 
-                background: white !important;
+                line-height: 1.1 !important; 
+                background: var(--surface) !important; 
+                color: var(--text) !important; 
+                height: 31mm !important; 
+                max-height: 31mm !important;
+                overflow: hidden !important;
             }
 
-            .today { 
-                background: transparent !important; 
-                border: 2px solid black !important; 
-            }
-            
-            .roman-day { font-size: 0.9rem !important; font-weight: bold; color: black !important; }
-            .anchor-date { color: black !important; text-decoration: underline; }
-            .event { color: black !important; font-style: italic; font-size: 0.6rem !important; margin-top: 1px; }
-            .extra { color: #333 !important; font-size: 0.55rem !important; margin-top: 1px; }
+            .today { background: var(--today-bg) !important; border: 2px solid var(--today-border) !important; }
+            .roman-day { font-size: 0.9rem !important; font-weight: bold; }
+            .anchor-date { color: var(--primary) !important; text-decoration: underline; }
+            .event { font-weight: bold; font-size: 0.6rem !important; margin-top: 1px; }
+            .extra { font-size: 0.55rem !important; margin-top: 1px; }
         }
     </style>
 </head>
@@ -237,7 +251,7 @@
         <h1>🏛️ RCAL</h1>
         <div class="controls">
             <div class="control-group"><label>Month:</label><select id="selMonth"></select></div>
-            <div class="control-group"><label>Year:</label><input type="number" id="inpYear" value="2026"></div>
+            <div class="control-group"><label>Year:</label><input type="number" id="inpYear" value="2026" style="width: 80px;"></div>
             <div class="control-group">
                 <label>Mode:</label>
                 <select id="selMode">
@@ -266,7 +280,10 @@
         <div class="converter-card" id="converterCard">
             <h2>🔄 Gregorian ➔ Roman Converter</h2>
             <div class="conv-controls">
-                <input type="date" id="inpConvDate">
+                <input type="number" id="inpConvDay" min="1" max="31" style="width: 50px;" title="Day">
+                <select id="selConvMonth" title="Month"></select>
+                <input type="number" id="inpConvYear" style="width: 80px;" title="Year">
+                <div style="width: 100%; height: 5px;"></div>
                 <label class="control-group"><input type="checkbox" id="optConvQS"> Q/S</label>
                 <label class="control-group"><input type="checkbox" id="optConvRomanYear" checked> Year</label>
                 <label class="control-group"><input type="checkbox" id="optConvRomanDays" checked> Days</label>
@@ -280,13 +297,20 @@
         const latin_months = ["IANVARIVS", "FEBRVARIVS", "MARTIVS", "APRILIS", "MAIVS", "IVNIVS", "IVLIVS", "AVGVSTVS", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
         const latin_months2 = ["IANVARIAS", "FEBRVARIAS", "MARTIAS", "APRILES", "MAIAS", "IVNIAS", "IVLIAS", "AVGVSTAS", "SEPTEMBRES", "OCTOBRES", "NOVEMBRES", "DECEMBRES"];
         const latin_days = ["SOL", "LVN", "MAR", "MER", "IOV", "VEN", "SAT"];
-        const now = new Date();
-        const curr_d = now.getDate(), curr_m = now.getMonth(), curr_y = now.getFullYear();
+        
+        // Static initialization dates to avoid regenerating on every function call
+        const init_date = new Date();
+        const curr_d = init_date.getDate(), curr_m = init_date.getMonth(), curr_y = init_date.getFullYear();
 
-        // Lista de IDs dos Checkboxes para sincronizar na URL
+        // Checkbox IDs for URL synchronization
         const toggleIds = ["optQS", "optRomanDays", "optRomanYear", "optFasti", "optNundinal", "optEvents", "optAUC", "optEra"];
 
-        // --- URL SYNC ---
+        // State trackers for debounce functionality
+        let renderTimer = null;
+        let lastMainY = curr_y;
+        let lastConvY = curr_y;
+
+        // --- URL SYNC & HISTORY MANAGEMENT ---
         const syncURL = () => {
             const params = new URLSearchParams(window.location.search);
             params.set('y', document.getElementById("inpYear").value);
@@ -301,7 +325,29 @@
             window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
         };
 
-        // --- MATH FUNCTIONS ---
+        const loadStateFromURL = () => {
+            const params = new URLSearchParams(window.location.search);
+            if (Array.from(params.keys()).length === 0) return false;
+
+            document.getElementById("selMonth").value = params.has('m') ? params.get('m') : curr_m; 
+            document.getElementById("inpYear").value = params.has('y') ? params.get('y') : curr_y;
+            if (params.has('mode')) document.getElementById("selMode").value = params.get('mode');
+            
+            toggleIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.checked = params.has(id);
+            });
+            
+            return true;
+        };
+
+        // Triggered by browser Back/Forward buttons
+        window.addEventListener('popstate', () => {
+            loadStateFromURL();
+            renderCalendar();
+        });
+
+        // --- MATH & ASTRONOMICAL FUNCTIONS ---
         const get_astro_y = (y) => y < 0 ? y + 1 : y; 
         const is_leap = (y) => { let ay = get_astro_y(y); return (ay > 1582) ? ((ay % 4 === 0 && ay % 100 !== 0) || (ay % 400 === 0)) : (ay % 4 === 0); };
         const get_days_in_month = (m, y) => { if (m === 1) return is_leap(y) ? 29 : 28; return [3, 5, 8, 10].includes(m) ? 30 : 31; };
@@ -329,29 +375,43 @@
         };
 
         const get_first_weekday = (m, y) => (get_jdn(1, m, y) + 1) % 7;
-        const get_nundinal_letter = (d, m, y) => String.fromCharCode(65 + (get_jdn(d, m, y) % 8));
 
-        // --- FULL CALENDAR FASTI DICTIONARY ---
-        const get_fasti = (d, m) => {
-            const fasti_year = [
-                "F,F,C,C,F,F,C,C,NP,EN,NP,C,NP,EN,NP,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 0 Jan
-                "N,N,N,N,N,N,N,N,N,N,N,N,NP,N,NP,EN,NP,C,C,C,F,C,NP,EN,C,EN,NP,C,C", // 1 Feb
-                "NP,F,C,C,C,F,C,C,C,C,C,C,EN,F,NP,C,NP,C,NP,C,C,EN,NP,QRCF,C,C,NP,C,C,C,C", // 2 Mar
-                "F,F,C,C,N,N,N,N,N,N,N,N,NP,N,NP,N,N,N,NP,N,NP,N,N,N,NP,C,C,NP,C,C", // 3 Apr
-                "F,F,C,C,C,F,C,C,NP,C,NP,C,EN,F,NP,C,C,C,C,C,NP,N,QRCF,C,C,C,C,C,C,C,C", // 4 May
-                "N,F,C,C,F,C,N,N,NP,N,NP,N,NP,N,QSDF,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 5 Jun
-                "N,N,N,N,NP,N,NP,N,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 6 Jul
-                "F,F,C,C,F,F,C,C,NP,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C", // 7 Aug
-                "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 8 Sep
-                "N,N,N,N,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 9 Oct
-                "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", // 10 Nov
-                "N,N,N,N,F,F,C,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C,C,C,C,C"  // 11 Dec
-            ];
-            let month_fasti = fasti_year[m].split(",");
-            return month_fasti[d - 1] || "C"; // Fallback de segurança
+        // Cumulative days offsets for O(1) performance in daily loops
+        const nundinal_offsets = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+        
+        const get_fixed_nundinal = (d, m) => {
+            return String.fromCharCode(65 + ((nundinal_offsets[m] + (d - 1)) % 8));
         };
 
-        // --- FESTIVALS DICTIONARY ---
+        const get_year_nundinal = (y) => {
+            let phase = get_jdn(1, 0, y) % 8;
+            let l1 = String.fromCharCode(65 + ((8 - phase) % 8));
+            if (is_leap(y)) {
+                let l2 = String.fromCharCode(65 + ((7 - phase + 8) % 8));
+                return `${l1}/${l2}`;
+            }
+            return l1;
+        };
+
+        // Pre-sliced array to avoid CPU overhead during loops
+        const fasti_data = [
+            "F,F,C,C,F,F,C,C,NP,EN,NP,C,NP,EN,NP,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
+            "N,N,N,N,N,N,N,N,N,N,N,N,NP,N,NP,EN,NP,C,C,C,F,C,NP,EN,C,EN,NP,C,C", 
+            "NP,F,C,C,C,F,C,C,C,C,C,C,EN,F,NP,C,NP,C,NP,C,C,EN,NP,QRCF,C,C,NP,C,C,C,C", 
+            "F,F,C,C,N,N,N,N,N,N,N,N,NP,N,NP,N,N,N,NP,N,NP,N,N,N,NP,C,C,NP,C,C", 
+            "F,F,C,C,C,F,C,C,NP,C,NP,C,EN,F,NP,C,C,C,C,C,NP,N,QRCF,C,C,C,C,C,C,C,C", 
+            "N,F,C,C,F,C,N,N,NP,N,NP,N,NP,N,QSDF,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
+            "N,N,N,N,NP,N,NP,N,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
+            "F,F,C,C,F,F,C,C,NP,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C", 
+            "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
+            "N,N,N,N,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
+            "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
+            "N,N,N,N,F,F,C,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C,C,C,C,C"  
+        ].map(row => row.split(","));
+
+        const get_fasti = (d, m) => fasti_data[m][d - 1] || "C"; // Safety fallback
+
+        // --- HISTORICAL DICTIONARIES ---
         const get_festival = (d, m) => {
             const festivals = {
                 0: { 9: "Agonalia", 11: "Carmentalia", 15: "Carmentalia" },
@@ -418,17 +478,50 @@
             let d = dim - day + 2; return d === 2 ? "PR KAL" : `${ns(d)} KAL`;
         };
 
-        // --- UI RENDERING ---
+        // --- CORE UI LOGIC ---
         const runConversion = () => {
-            const di = document.getElementById("inpConvDate").value, res = document.getElementById("resConversion");
-            if (!di) return;
-            const [y, m, d] = di.split('-').map(v => parseInt(v));
-            const qs = document.getElementById("optConvQS").checked, ry = document.getElementById("optConvRomanYear").checked, rd = document.getElementById("optConvRomanDays").checked;
+            const dStr = document.getElementById("inpConvDay").value;
+            const mStr = document.getElementById("selConvMonth").value;
+            const yStr = document.getElementById("inpConvYear").value;
+            const res = document.getElementById("resConversion");
+
+            // Empty input guard to prevent NaN crashes
+            if (dStr === "" || mStr === "" || yStr === "" || yStr === "-") {
+                res.innerHTML = "<span style='opacity: 0.5; font-size: 1rem;'>Waiting for input...</span>";
+                return;
+            }
+
+            const d = parseInt(dStr);
+            const m = parseInt(mStr) + 1;
+            const y = parseInt(yStr);
+
+            if (isNaN(d) || isNaN(m) || isNaN(y)) return;
+
+            let max_days = get_days_in_month(m - 1, y);
+            if (d > max_days || d < 1) {
+                res.innerHTML = "<span style='color: var(--event); font-size: 1.1rem;'>Invalid day for this month</span>";
+                return;
+            }
+
+            // The Historical Ghost Days check
+            if (y === 1582 && m === 10 && d >= 5 && d <= 14) {
+                res.innerHTML = "<span style='color: var(--event); font-size: 1rem;'>Gregorian gap (skipped dates)</span>";
+                return;
+            }
+
+            const qs = document.getElementById("optConvQS").checked, 
+                  ry = document.getElementById("optConvRomanYear").checked, 
+                  rd = document.getElementById("optConvRomanDays").checked;
+                  
             let tm = m - 1, ty = y, non = [2, 4, 6, 9].includes(tm) ? 7 : 5;
-            if (d > non + 8) { tm = (tm + 1) % 12; if (tm === 0) ty++; }
-            let mn = latin_months2[tm]; if (qs && tm === 6) mn = "QVINTILES"; if (qs && tm === 7) mn = "SEXTILES";
             
-            if (ty === 0) ty = 1; 
+            // Push dates forward if they occur after the Ides
+            if (d > non + 8) { tm = (tm + 1) % 12; if (tm === 0) ty++; }
+            let mn = latin_months2[tm]; 
+            if (qs && tm === 6) mn = "QVINTILES"; 
+            if (qs && tm === 7) mn = "SEXTILES";
+            
+            if (ty === 0) ty = 1; // No Year Zero in output
             
             res.innerText = `${get_roman_day(d, m-1, y, rd)} ${mn} ${ry ? int_to_roman_year(ty) : ty}`;
         };
@@ -437,8 +530,19 @@
             syncURL(); 
 
             const grid = document.getElementById("calendarGrid");
+            const yStr = document.getElementById("inpYear").value;
+            
+            // Empty input guard
+            if (yStr === "" || yStr === "-") {
+                grid.innerHTML = "<div style='text-align:center; padding: 50px; grid-column: 1/-1;'>Waiting for valid year...</div>";
+                return;
+            }
+
             let buf = ""; 
-            const tm = parseInt(document.getElementById("selMonth").value), ty = parseInt(document.getElementById("inpYear").value), mode = parseInt(document.getElementById("selMode").value);
+            const tm = parseInt(document.getElementById("selMonth").value);
+            const ty = parseInt(yStr);
+            const mode = parseInt(document.getElementById("selMode").value);
+            
             const qs = document.getElementById("optQS").checked, rd = document.getElementById("optRomanDays").checked, ry = document.getElementById("optRomanYear").checked, fa = document.getElementById("optFasti").checked, nu = document.getElementById("optNundinal").checked, ev = document.getElementById("optEvents").checked, auc = document.getElementById("optAUC").checked, era = document.getElementById("optEra").checked;
 
             let sm = tm, sy = ty, count = mode;
@@ -448,7 +552,7 @@
                 let m = (sm + i) % 12;
                 
                 let calculated_y = sy + Math.floor((sm + i) / 12);
-                if (sy < 0 && calculated_y >= 0) calculated_y += 1; 
+                if (sy < 0 && calculated_y >= 0) calculated_y += 1; // Year Zero jump
                 let y = calculated_y;
 
                 let days = get_days_in_month(m, y), first = get_first_weekday(m, y);
@@ -460,19 +564,24 @@
                 if (auc) yearStr += " AUC";
 
                 let emp = era ? get_emperor(y) : null;
+                let nund_header = nu ? ` <span style="font-size: 0.85em;">(NUND: ${get_year_nundinal(y)})</span>` : "";
                 
-                buf += `<div class="calendar"><div class="month-header">${mn} ${yearStr} ${emp?`<br/><small>(${emp})</small>`:''}</div><div class="table-wrapper"><table><tr>${latin_days.map(d=>`<th>${d}</th>`).join('')}</tr><tr>`;
+                buf += `<div class="calendar"><div class="month-header">${mn} ${yearStr}${nund_header} ${emp?`<br/><small>(${emp})</small>`:''}</div><div class="table-wrapper"><table><tr>${latin_days.map(d=>`<th>${d}</th>`).join('')}</tr><tr>`;
                 let cc = 0;
+                
                 for (let j = 0; j < first; j++) { buf += `<td></td>`; cc++; }
+                
                 for (let d = 1; d <= days; d++) {
+                    // Gregorian shift logic
                     if (y === 1582 && m === 9 && d >= 5 && d <= 14) continue;
+                    
                     if (cc > 0 && cc % 7 === 0) buf += `</tr><tr>`;
                     let today = (d === curr_d && m === curr_m && y === curr_y && mode !== 12), rd_str = get_roman_day(d, m, y, rd);
                     let isAnchor = (rd_str === "KAL" || rd_str === "NON" || rd_str === "IDV");
 
                     buf += `<td ${today?'class="today"':''}>
                         <span class="roman-day ${isAnchor?'anchor-date':''}">${rd_str}</span>
-                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_nundinal_letter(d,m,y)} `:''}${fa?`[${get_fasti(d, m)}]`:''}</span>`:''}
+                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_fixed_nundinal(d,m)} `:''}${fa?`[${get_fasti(d, m)}]`:''}</span>`:''}
                         ${ev && get_festival(d, m) ? `<span class="event">${get_festival(d, m)}</span>` : ''}
                         ${y===1582&&m===9&&d===15?`<span class="extra" style="color:var(--primary); font-weight:bold;">(Greg.)</span>`:''}
                     </td>`;
@@ -484,7 +593,6 @@
             grid.innerHTML = buf;
         };
 
-        // --- THEME ---
         const toggleDarkMode = () => {
             document.body.classList.toggle("dark-mode");
             const isDark = document.body.classList.contains("dark-mode");
@@ -493,7 +601,7 @@
             document.activeElement.blur(); 
         };
 
-        // --- KEYBOARD SHORTCUTS ---
+        // Keyboard navigation and shortcuts
         const handleKeyboardShortcuts = (e) => {
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
                 return;
@@ -532,50 +640,70 @@
                 case 'p': e.preventDefault(); document.activeElement.blur(); window.print(); break;
             }
 
-            if (updateCalendar) {
-                renderCalendar();
-            }
+            if (updateCalendar) renderCalendar();
         };
 
-        // --- INIT ---
+        // --- INITIALIZATION ---
         window.onload = () => {
             if (localStorage.getItem("rcal_theme") === "dark") toggleDarkMode();
 
             const sm = document.getElementById("selMonth"), yInp = document.getElementById("inpYear");
-            latin_months.forEach((m, i) => sm.add(new Option(m, i)));
+            const smConv = document.getElementById("selConvMonth");
             
-            const params = new URLSearchParams(window.location.search);
-            sm.value = params.has('m') ? params.get('m') : curr_m; 
-            yInp.value = params.has('y') ? params.get('y') : curr_y;
-            if (params.has('mode')) document.getElementById("selMode").value = params.get('mode');
+            latin_months.forEach((m, i) => {
+                sm.add(new Option(m, i));
+                smConv.add(new Option(m, i));
+            });
             
-            // CORREÇÃO: Se houver qualquer parâmetro na URL, a URL dita as regras e removemos os defaults do HTML
-            if (Array.from(params.keys()).length > 0) {
-                toggleIds.forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.checked = params.has(id);
-                });
-            }
+            loadStateFromURL();
             
-            document.getElementById("inpConvDate").value = `${curr_y}-${String(curr_m+1).padStart(2,'0')}-${String(curr_d).padStart(2,'0')}`;
+            // Populates converter inputs with the current date
+            document.getElementById("inpConvDay").value = curr_d;
+            smConv.value = curr_m;
+            document.getElementById("inpConvYear").value = curr_y;
             
-            let lastY = parseInt(yInp.value);
+            // Debounced Event Listener for Main Year Input (Fixes CPU spike)
             yInp.addEventListener("input", (e) => {
-                let v = parseInt(e.target.value);
-                if (v === 0) e.target.value = lastY > 0 ? -1 : 1;
-                lastY = parseInt(e.target.value) || 1;
-                renderCalendar();
+                clearTimeout(renderTimer);
+                let val = e.target.value;
+                if (val === "" || val === "-") return; // Safety guard for empty inputs
+                
+                let v = parseInt(val);
+                if (v === 0) {
+                    e.target.value = lastMainY > 0 ? -1 : 1;
+                    v = parseInt(e.target.value);
+                }
+                lastMainY = v;
+                renderTimer = setTimeout(renderCalendar, 300); // 300ms debounce
             });
 
+            // Fast Event Listener for Converter Year Input
+            document.getElementById("inpConvYear").addEventListener("input", (e) => {
+                let val = e.target.value;
+                if (val === "" || val === "-") { runConversion(); return; }
+                
+                let v = parseInt(val);
+                if (v === 0) {
+                    e.target.value = lastConvY > 0 ? -1 : 1;
+                    v = parseInt(e.target.value);
+                }
+                lastConvY = v;
+                runConversion();
+            });
+
+            // Bind UI interaction events
             document.querySelectorAll("header input[type='checkbox'], header select").forEach(el => el.addEventListener("change", renderCalendar));
-            document.querySelectorAll(".converter-card input").forEach(el => el.addEventListener("change", runConversion));
+            document.querySelectorAll(".converter-card input[type='checkbox'], .converter-card select, #inpConvDay").forEach(el => el.addEventListener("input", runConversion));
+            
             document.getElementById("optToggleConverter").addEventListener("change", (e) => document.getElementById("converterCard").style.display = e.target.checked ? "block" : "none");
             document.getElementById("btnDarkMode").addEventListener("click", toggleDarkMode);
             document.getElementById("btnPrint").addEventListener("click", () => { document.activeElement.blur(); window.print(); });
 
             document.addEventListener('keydown', handleKeyboardShortcuts);
 
-            renderCalendar(); runConversion();
+            // First render
+            renderCalendar(); 
+            runConversion();
         };
     </script>
 </body>
