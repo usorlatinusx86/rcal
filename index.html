@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RCAL Roman Calendar</title>
-
     <style>
         /* LIGHT THEME VARIABLES */
         :root {
@@ -120,7 +119,7 @@
             .calendar-grid { grid-template-columns: 1fr; }
         }
 
-        /* 🖨️ OPTIMIZED PRINT CONFIGURATIONS (SAFARI/IOS BULLETPROOF MODE) */
+        /* 🖨️ OPTIMIZED PRINT CONFIGURATIONS */
         @media print {
             @page { 
                 size: portrait;
@@ -171,7 +170,7 @@
                 height: 210mm !important; 
                 max-height: 210mm !important; 
                 width: 100% !important; 
-                margin: 0 auto !important; 
+                margin: 0 auto !important;
                 
                 border: 1px solid var(--border) !important; 
                 box-shadow: none !important; 
@@ -246,12 +245,11 @@
     </style>
 </head>
 <body>
-
     <header>
         <h1>🏛️ RCAL</h1>
         <div class="controls">
             <div class="control-group"><label>Month:</label><select id="selMonth"></select></div>
-            <div class="control-group"><label>Year:</label><input type="number" id="inpYear" value="2026" style="width: 80px;"></div>
+            <div class="control-group"><label>Year:</label><input type="number" id="inpYear" style="width: 80px;"></div>
             <div class="control-group">
                 <label>Mode:</label>
                 <select id="selMode">
@@ -379,8 +377,11 @@
         // Cumulative days offsets for O(1) performance in daily loops
         const nundinal_offsets = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
         
-        const get_fixed_nundinal = (d, m) => {
-            return String.fromCharCode(65 + ((nundinal_offsets[m] + (d - 1)) % 8));
+        // BUGFIX: Nundinal offset is adjusted dynamically if the year is a leap year
+        const get_fixed_nundinal = (d, m, y) => {
+            let offset = nundinal_offsets[m];
+            if (is_leap(y) && m > 1) offset += 1; // Adjust for Mar-Dec in leap years
+            return String.fromCharCode(65 + ((offset + (d - 1)) % 8));
         };
 
         const get_year_nundinal = (y) => {
@@ -406,29 +407,29 @@
             "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
             "N,N,N,N,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
             "F,F,C,C,F,F,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C,C", 
-            "N,N,N,N,F,F,C,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C,C,C,C,C"  
+            "N,N,N,N,F,F,C,C,C,C,NP,C,C,C,NP,C,NP,C,NP,C,NP,C,NP,C,C,C,C,C,C,C,C"
         ].map(row => row.split(","));
 
-        const get_fasti = (d, m) => fasti_data[m][d - 1] || "C"; // Safety fallback
+        const get_fasti = (d, m) => fasti_data[m][d - 1] || "C";
 
         // --- HISTORICAL DICTIONARIES ---
-        const get_festival = (d, m) => {
-            const festivals = {
-                0: { 9: "Agonalia", 11: "Carmentalia", 15: "Carmentalia" },
-                1: { 13: "Parentalia", 15: "Lupercalia", 17: "Quirinalia", 21: "Feralia", 22: "Caristia", 23: "Terminalia", 24: "Regifugium", 27: "Equirria" },
-                2: { 1: "Matronalia", 14: "Equirria", 15: "Anna Perenna", 17: "Liberalia", 19: "Quinquatrus", 23: "Tubilustrium" },
-                3: { 4: "Megalesia", 12: "Cerialia", 15: "Fordicidia", 21: "Parilia", 23: "Vinalia Priora", 25: "Robigalia", 28: "Floralia" },
-                4: { 9: "Lemuria", 11: "Lemuria", 13: "Lemuria", 15: "Mercuralia", 21: "Agonalia" },
-                5: { 9: "Vestalia", 11: "Matralia" },
-                6: { 5: "Poplifugia", 7: "N. Caprotinae", 19: "Lucaria", 21: "Lucaria", 23: "Neptunalia", 25: "Furrinalia" },
-                7: { 13: "Nemoralia", 17: "Portunalia", 19: "Vinalia Rustica", 21: "Consualia", 23: "Vulcanalia", 25: "Opiconsivia", 27: "Volturnalia" },
-                8: { 4: "Ludi Romani", 13: "Epulum Jovis" },
-                9: { 11: "Meditrinalia", 13: "Fontinalia", 15: "Equus October", 19: "Armilustrium" },
-                10: { 13: "Epulum Jovis", 24: "Brumalia" },
-                11: { 4: "Bona Dea", 5: "Faunalia", 11: "Agonalia", 15: "Consualia", 17: "Saturnalia", 19: "Opalia", 21: "Divalia", 23: "Larentalia", 25: "Solis Invicti" }
-            };
-            return (festivals[m] && festivals[m][d]) ? festivals[m][d] : null;
+        // OPTIMIZATION: Moved object out of function to prevent heavy memory allocation inside loops
+        const FESTIVALS_DATA = {
+            0: { 9: "Agonalia", 11: "Carmentalia", 15: "Carmentalia" },
+            1: { 13: "Parentalia", 15: "Lupercalia", 17: "Quirinalia", 21: "Feralia", 22: "Caristia", 23: "Terminalia", 24: "Regifugium", 27: "Equirria" },
+            2: { 1: "Matronalia", 14: "Equirria", 15: "Anna Perenna", 17: "Liberalia", 19: "Quinquatrus", 23: "Tubilustrium" },
+            3: { 4: "Megalesia", 12: "Cerialia", 15: "Fordicidia", 21: "Parilia", 23: "Vinalia Priora", 25: "Robigalia", 28: "Floralia" },
+            4: { 9: "Lemuria", 11: "Lemuria", 13: "Lemuria", 15: "Mercuralia", 21: "Agonalia" },
+            5: { 9: "Vestalia", 11: "Matralia" },
+            6: { 5: "Poplifugia", 7: "N. Caprotinae", 19: "Lucaria", 21: "Lucaria", 23: "Neptunalia", 25: "Furrinalia" },
+            7: { 13: "Nemoralia", 17: "Portunalia", 19: "Vinalia Rustica", 21: "Consualia", 23: "Vulcanalia", 25: "Opiconsivia", 27: "Volturnalia" },
+            8: { 4: "Ludi Romani", 13: "Epulum Jovis" },
+            9: { 11: "Meditrinalia", 13: "Fontinalia", 15: "Equus October", 19: "Armilustrium" },
+            10: { 13: "Epulum Jovis", 24: "Brumalia" },
+            11: { 4: "Bona Dea", 5: "Faunalia", 11: "Agonalia", 15: "Consualia", 17: "Saturnalia", 19: "Opalia", 21: "Divalia", 23: "Larentalia", 25: "Solis Invicti" }
         };
+
+        const get_festival = (d, m) => (FESTIVALS_DATA[m] && FESTIVALS_DATA[m][d]) ? FESTIVALS_DATA[m][d] : null;
 
         const get_emperor = (y) => {
             if (y < -753) return null; 
@@ -458,6 +459,7 @@
             return null;
         };
 
+        // BUGFIX: Handled the PR KAL scenario correctly for leap year day 29
         const get_roman_day = (day, month, year, use_roman) => {
             let dim = get_days_in_month(month, year);
             let non = [2, 4, 6, 9].includes(month) ? 7 : 5, ide = non + 8;
@@ -473,9 +475,13 @@
                 if (day < 24) return `${ns(28 - day + 2)} KAL`;
                 if (day === 24) return use_roman ? "VI KAL" : "6 KAL"; 
                 if (day === 25) return use_roman ? "VI KAL (BIS)" : "6 KAL (BIS)"; 
-                return `${ns(29 - day + 2)} KAL`;
+                
+                let leap_d = 29 - day + 2; 
+                return leap_d === 2 ? "PR KAL" : `${ns(leap_d)} KAL`; 
             }
-            let d = dim - day + 2; return d === 2 ? "PR KAL" : `${ns(d)} KAL`;
+            
+            let d = dim - day + 2; 
+            return d === 2 ? "PR KAL" : `${ns(d)} KAL`;
         };
 
         // --- CORE UI LOGIC ---
@@ -485,7 +491,6 @@
             const yStr = document.getElementById("inpConvYear").value;
             const res = document.getElementById("resConversion");
 
-            // Empty input guard to prevent NaN crashes
             if (dStr === "" || mStr === "" || yStr === "" || yStr === "-") {
                 res.innerHTML = "<span style='opacity: 0.5; font-size: 1rem;'>Waiting for input...</span>";
                 return;
@@ -503,7 +508,6 @@
                 return;
             }
 
-            // The Historical Ghost Days check
             if (y === 1582 && m === 10 && d >= 5 && d <= 14) {
                 res.innerHTML = "<span style='color: var(--event); font-size: 1rem;'>Gregorian gap (skipped dates)</span>";
                 return;
@@ -515,13 +519,12 @@
                   
             let tm = m - 1, ty = y, non = [2, 4, 6, 9].includes(tm) ? 7 : 5;
             
-            // Push dates forward if they occur after the Ides
             if (d > non + 8) { tm = (tm + 1) % 12; if (tm === 0) ty++; }
             let mn = latin_months2[tm]; 
             if (qs && tm === 6) mn = "QVINTILES"; 
             if (qs && tm === 7) mn = "SEXTILES";
             
-            if (ty === 0) ty = 1; // No Year Zero in output
+            if (ty === 0) ty = 1; 
             
             res.innerText = `${get_roman_day(d, m-1, y, rd)} ${mn} ${ry ? int_to_roman_year(ty) : ty}`;
         };
@@ -532,7 +535,6 @@
             const grid = document.getElementById("calendarGrid");
             const yStr = document.getElementById("inpYear").value;
             
-            // Empty input guard
             if (yStr === "" || yStr === "-") {
                 grid.innerHTML = "<div style='text-align:center; padding: 50px; grid-column: 1/-1;'>Waiting for valid year...</div>";
                 return;
@@ -552,7 +554,7 @@
                 let m = (sm + i) % 12;
                 
                 let calculated_y = sy + Math.floor((sm + i) / 12);
-                if (sy < 0 && calculated_y >= 0) calculated_y += 1; // Year Zero jump
+                if (sy < 0 && calculated_y >= 0) calculated_y += 1; 
                 let y = calculated_y;
 
                 let days = get_days_in_month(m, y), first = get_first_weekday(m, y);
@@ -572,16 +574,16 @@
                 for (let j = 0; j < first; j++) { buf += `<td></td>`; cc++; }
                 
                 for (let d = 1; d <= days; d++) {
-                    // Gregorian shift logic
                     if (y === 1582 && m === 9 && d >= 5 && d <= 14) continue;
                     
                     if (cc > 0 && cc % 7 === 0) buf += `</tr><tr>`;
                     let today = (d === curr_d && m === curr_m && y === curr_y && mode !== 12), rd_str = get_roman_day(d, m, y, rd);
                     let isAnchor = (rd_str === "KAL" || rd_str === "NON" || rd_str === "IDV");
 
+                    // BUGFIX Applied here: get_fixed_nundinal now receives 'y' as well
                     buf += `<td ${today?'class="today"':''}>
                         <span class="roman-day ${isAnchor?'anchor-date':''}">${rd_str}</span>
-                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_fixed_nundinal(d,m)} `:''}${fa?`[${get_fasti(d, m)}]`:''}</span>`:''}
+                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_fixed_nundinal(d, m, y)} `:''}${fa?`[${get_fasti(d, m)}]`:''}</span>`:''}
                         ${ev && get_festival(d, m) ? `<span class="event">${get_festival(d, m)}</span>` : ''}
                         ${y===1582&&m===9&&d===15?`<span class="extra" style="color:var(--primary); font-weight:bold;">(Greg.)</span>`:''}
                     </td>`;
@@ -655,18 +657,19 @@
                 smConv.add(new Option(m, i));
             });
             
+            sm.value = curr_m;
+            yInp.value = curr_y;
+            
             loadStateFromURL();
             
-            // Populates converter inputs with the current date
             document.getElementById("inpConvDay").value = curr_d;
             smConv.value = curr_m;
             document.getElementById("inpConvYear").value = curr_y;
             
-            // Debounced Event Listener for Main Year Input (Fixes CPU spike)
             yInp.addEventListener("input", (e) => {
                 clearTimeout(renderTimer);
                 let val = e.target.value;
-                if (val === "" || val === "-") return; // Safety guard for empty inputs
+                if (val === "" || val === "-") return;
                 
                 let v = parseInt(val);
                 if (v === 0) {
@@ -674,10 +677,9 @@
                     v = parseInt(e.target.value);
                 }
                 lastMainY = v;
-                renderTimer = setTimeout(renderCalendar, 300); // 300ms debounce
+                renderTimer = setTimeout(renderCalendar, 300); 
             });
 
-            // Fast Event Listener for Converter Year Input
             document.getElementById("inpConvYear").addEventListener("input", (e) => {
                 let val = e.target.value;
                 if (val === "" || val === "-") { runConversion(); return; }
@@ -691,7 +693,6 @@
                 runConversion();
             });
 
-            // Bind UI interaction events
             document.querySelectorAll("header input[type='checkbox'], header select").forEach(el => el.addEventListener("change", renderCalendar));
             document.querySelectorAll(".converter-card input[type='checkbox'], .converter-card select, #inpConvDay").forEach(el => el.addEventListener("input", runConversion));
             
@@ -701,7 +702,6 @@
 
             document.addEventListener('keydown', handleKeyboardShortcuts);
 
-            // First render
             renderCalendar(); 
             runConversion();
         };
