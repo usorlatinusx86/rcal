@@ -6,18 +6,18 @@
     <title>RCAL Roman Calendar</title>
     <style>
         /* LIGHT THEME VARIABLES */
-        :root {
-            --primary: #800000;
-            --bg: #f4f4f5;
-            --surface: #ffffff;
-            --border: #e2e8f0;
-            --text: #1e293b;
-            --text-light: #64748b;
-            --today-bg: #fffacd;
-            --today-border: #ffd700;
-            --event: #d32f2f;
-            --dark-btn: #475569;
-            --print-btn: #059669;
+       :root {
+            --primary: #800000;      /* Vermelho Romano Original */
+            --bg: #f3ead8;           /* Fundo principal bege/pergaminho */
+            --surface: #fcfbf7;      /* Fundo das caixas do calendário (bege muito claro) */
+            --border: #d4c8b8;       /* Bordas em tom de pedra/areia */
+            --text: #3e2723;         /* Texto num castanho sépia muito escuro (mais clássico que preto) */
+            --text-light: #8d7b68;   /* Texto secundário em tom de barro */
+            --today-bg: #faedb4;     /* Fundo do dia atual (dourado suave) */
+            --today-border: #d97706; /* Borda do dia atual */
+            --event: #b91c1c;        /* Cor dos eventos */
+            --dark-btn: #4a3c31;     /* Botão escuro num tom de madeira escurecida */
+            --print-btn: #059669;    
         }
 
         /* DARK THEME VARIABLES */
@@ -415,18 +415,18 @@
         // --- HISTORICAL DICTIONARIES ---
         // OPTIMIZATION: Moved object out of function to prevent heavy memory allocation inside loops
         const FESTIVALS_DATA = {
-            0: { 9: "Agonalia", 11: "Carmentalia", 15: "Carmentalia" },
-            1: { 13: "Parentalia", 15: "Lupercalia", 17: "Quirinalia", 21: "Feralia", 22: "Caristia", 23: "Terminalia", 24: "Regifugium", 27: "Equirria" },
-            2: { 1: "Matronalia", 14: "Equirria", 15: "Anna Perenna", 17: "Liberalia", 19: "Quinquatrus", 23: "Tubilustrium" },
-            3: { 4: "Megalesia", 12: "Cerialia", 15: "Fordicidia", 21: "Parilia", 23: "Vinalia Priora", 25: "Robigalia", 28: "Floralia" },
-            4: { 9: "Lemuria", 11: "Lemuria", 13: "Lemuria", 15: "Mercuralia", 21: "Agonalia" },
-            5: { 9: "Vestalia", 11: "Matralia" },
-            6: { 5: "Poplifugia", 7: "N. Caprotinae", 19: "Lucaria", 21: "Lucaria", 23: "Neptunalia", 25: "Furrinalia" },
-            7: { 13: "Nemoralia", 17: "Portunalia", 19: "Vinalia Rustica", 21: "Consualia", 23: "Vulcanalia", 25: "Opiconsivia", 27: "Volturnalia" },
-            8: { 4: "Ludi Romani", 13: "Epulum Jovis" },
-            9: { 11: "Meditrinalia", 13: "Fontinalia", 15: "Equus October", 19: "Armilustrium" },
-            10: { 13: "Epulum Jovis", 24: "Brumalia" },
-            11: { 4: "Bona Dea", 5: "Faunalia", 11: "Agonalia", 15: "Consualia", 17: "Saturnalia", 19: "Opalia", 21: "Divalia", 23: "Larentalia", 25: "Solis Invicti" }
+           0: { 9: "AGONALIA", 11: "CARMENTALIA", 15: "CARMENTALIA" },
+            1: { 13: "PARENTALIA", 15: "LVPERCALIA", 17: "QVIRINALIA", 21: "FERALIA", 22: "CARISTIA", 23: "TERMINALIA", 24: "REGIFUGIVM", 27: "EQUIRRIA" },
+            2: { 1: "MATRONALIA", 14: "EQVIRRIA", 15: "ANNA PERENNA", 17: "LIBERALIA", 19: "QUINQVATRVS", 23: "TUBILVSTRIUM" },
+            3: { 4: "MEGALESIA", 12: "CERIALIA", 15: "FORDICIDIA", 21: "PARILIA", 23: "VINALIA PRIORA", 25: "ROBIGALIA", 28: "FLORALIA" },
+            4: { 9: "LEMVRIA", 11: "LEMVRIA", 13: "LEMVRIA", 15: "MERCVRALIA", 21: "AGONALIA" },
+            5: { 9: "VESTALIA", 11: "MATRALIA" },
+            6: { 5: "POPLIFVGIA", 7: "N. CAPROTINAE", 19: "LVCARIA", 21: "LVCARIA", 23: "NEPTVNALIA", 25: "FVRRINALIA" },
+            7: { 13: "NEMORALIA", 17: "PORTVNALIA", 19: "VINALIA RVSTICA", 21: "CONSVALIA", 23: "VULCANALIA", 25: "OPICONSIVIA", 27: "VOLTVRNALIA" },
+            8: { 4: "LVDI ROMANI", 13: "EPVLVM JOVIS" },
+            9: { 11: "MEDITRINALIA", 13: "FONTINALIA", 15: "EQVVS OCTOBER", 19: "ARMILVSTRIVM" },
+            10: { 13: "EPVLVM JOVIS", 24: "BRVMALIA" },
+            11: { 4: "BONA DEA", 5: "FAVNALIA", 11: "AGONALIA", 15: "CONSVALIA", 17: "SATVRNALIA", 19: "OPALIA", 21: "DIVALIA", 23: "LARENTALIA", 25: "SOLIS INVICTI" }
         };
 
         const get_festival = (d, m) => (FESTIVALS_DATA[m] && FESTIVALS_DATA[m][d]) ? FESTIVALS_DATA[m][d] : null;
@@ -566,7 +566,7 @@
                 if (auc) yearStr += " AUC";
 
                 let emp = era ? get_emperor(y) : null;
-                let nund_header = nu ? ` <span style="font-size: 0.85em;">(NUND: ${get_year_nundinal(y)})</span>` : "";
+                let nund_header = nu ? ` <span style="font-size: 0.85em;">(${get_year_nundinal(y)})</span>` : "";
                 
                 buf += `<div class="calendar"><div class="month-header">${mn} ${yearStr}${nund_header} ${emp?`<br/><small>(${emp})</small>`:''}</div><div class="table-wrapper"><table><tr>${latin_days.map(d=>`<th>${d}</th>`).join('')}</tr><tr>`;
                 let cc = 0;
@@ -583,7 +583,7 @@
                     // BUGFIX Applied here: get_fixed_nundinal now receives 'y' as well
                     buf += `<td ${today?'class="today"':''}>
                         <span class="roman-day ${isAnchor?'anchor-date':''}">${rd_str}</span>
-                        ${(nu||fa)?`<span class="extra">${nu?`Nund: ${get_fixed_nundinal(d, m, y)} `:''}${fa?`[${get_fasti(d, m)}]`:''}</span>`:''}
+                        ${(nu||fa)?`<span class="extra">${nu?`${get_fixed_nundinal(d, m, y)} `:''}${fa?`[${get_fasti(d, m)}]`:''}</span>`:''}
                         ${ev && get_festival(d, m) ? `<span class="event">${get_festival(d, m)}</span>` : ''}
                         ${y===1582&&m===9&&d===15?`<span class="extra" style="color:var(--primary); font-weight:bold;">(Greg.)</span>`:''}
                     </td>`;
@@ -708,3 +708,4 @@
     </script>
 </body>
 </html>
+
